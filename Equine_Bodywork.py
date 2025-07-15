@@ -59,11 +59,13 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
     paid_status = "✅ Paid" if paid else "❌ Not Paid"
     notes_html = notes.replace('\n', '<br>')
 
-    # GitHub-hosted logo
-    logo_url = "https://raw.githubusercontent.com/heatherLS/equine-bodywork/main/images/logo.png"
+    # Embed logo as base64
+    logo_path = "images/logo.png"
+    logo_base64 = encode_file(logo_path)
 
     html_content = f"""
-    <img src="{logo_url}" alt="Logo" style="height:100px;"><br><br>
+    <img src="data:image/png;base64,{logo_base64}" alt="Logo" style="height:100px;"><br><br>
+
     <h2>🐴 Session Summary for {horse_name}</h2>
     <p><strong>Date:</strong> {session_date}</p>
     <p><strong>Amount:</strong> ${amount:.2f} — {paid_status}</p>

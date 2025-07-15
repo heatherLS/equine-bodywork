@@ -64,7 +64,14 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
     with open(logo_path, "rb") as img_file:
         logo_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-    logo_img_tag = f'<img src="data:image/png;base64,{logo_base64}" alt="Logo" style="height:100px;"><br><br>'
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="center">
+      <img src="{logo_url}" alt="Equine Bodywork Logo" width="200" height="auto" style="display: block;">
+    </td>
+  </tr>
+</table>
+
 
     html_content = f"""
     {logo_img_tag}

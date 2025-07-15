@@ -1,3 +1,7 @@
 streamlit
 streamlit-drawable-canvas
 pandas
+Pillow
+sendgrid
+python-dotenv
+

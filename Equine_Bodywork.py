@@ -148,7 +148,7 @@ with col1:
         stroke_width=3,
         height=left_img.height,
         width=left_img.width,
-        background_image_url=left_bg_url,
+        background_image=left_img,  # ✅ Local file included in repo
         drawing_mode="freedraw",
         key="canvas_left"
     )
@@ -159,10 +159,11 @@ with col2:
         stroke_width=3,
         height=right_img.height,
         width=right_img.width,
-        background_image_url=right_bg_url,
+        background_image=right_img,  # ✅ Local file included in repo
         drawing_mode="freedraw",
         key="canvas_right"
     )
+
 
 # Save and Send
 if st.button("💾 Save Session"):

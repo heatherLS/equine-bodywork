@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
 import base64
+import io
 
 # Load environment variables
 load_dotenv()
@@ -15,6 +16,12 @@ load_dotenv()
 def image_to_base64(path):
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
+
+def pil_to_base64(img):
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    encoded = base64.b64encode(buffered.getvalue()).decode()
+    return f"data:image/png;base64,{encoded}"
 
 def export_canvas_to_file(canvas_data, background_image, save_path):
     if not canvas_data.json_data or "objects" not in canvas_data.json_data:
@@ -59,31 +66,27 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
     paid_status = "✅ Paid" if paid else "❌ Not Paid"
     notes_html = notes.replace('\n', '<br>')
 
-    # Embed logo as base64
-    logo_path = "images/logo.png"
-    with open(logo_path, "rb") as img_file:
-        logo_base64 = base64.b64encode(img_file.read()).decode("utf-8")
-
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-  <tr>
-    <td align="center">
-      <img src="{logo_url}" alt="Equine Bodywork Logo" width="200" height="auto" style="display: block;">
-    </td>
-  </tr>
-</table>
-
+    # GitHub-hosted logo
+    logo_url = "https://raw.githubusercontent.com/heatherLS/equine-bodywork/main/images/logo.png"
 
     html_content = f"""
-    {logo_img_tag}
+    <!DOCTYPE html>
+    <html>
+    <body>
+    <div style="text-align:center">
+      <img src="{logo_url}" alt="Logo" style="height:100px;">
+    </div>
+    <br><br>
     <h2>🐴 Session Summary for {horse_name}</h2>
     <p><strong>Date:</strong> {session_date}</p>
     <p><strong>Amount:</strong> ${amount:.2f} — {paid_status}</p>
     <p><strong>Notes:</strong></p>
     <p>{notes_html}</p>
     <h3>📎 Marked Areas of Concern</h3>
-     <p>The marked diagrams are attached as images of the left and right sides of the horse.</p>
+    <p>The marked diagrams are attached as images of the left and right sides of the horse.</p>
+    </body>
+    </html>
     """
-
 
     message = Mail(
         from_email=(from_email, from_name),
@@ -131,6 +134,9 @@ right_img_path = "images/horse_right.png"
 left_img = Image.open(left_img_path)
 right_img = Image.open(right_img_path)
 
+left_bg_url = pil_to_base64(left_img)
+right_bg_url = pil_to_base64(right_img)
+
 # Sidebar inputs
 st.sidebar.header("Session Info")
 horse_name = st.sidebar.text_input("Horse Name")
@@ -150,7 +156,8 @@ with col1:
         stroke_width=3,
         height=left_img.height,
         width=left_img.width,
-        background_image=left_img,
+        background_image=None,
+        background_image_url=left_bg_url,
         drawing_mode="freedraw",
         key="canvas_left"
     )
@@ -161,7 +168,8 @@ with col2:
         stroke_width=3,
         height=right_img.height,
         width=right_img.width,
-        background_image=right_img,
+        background_image=None,
+        background_image_url=right_bg_url,
         drawing_mode="freedraw",
         key="canvas_right"
     )

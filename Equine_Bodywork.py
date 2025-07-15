@@ -61,19 +61,22 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
 
     # Embed logo as base64
     logo_path = "images/logo.png"
-    logo_base64 = encode_file(logo_path)
+    with open(logo_path, "rb") as img_file:
+        logo_base64 = base64.b64encode(img_file.read()).decode("utf-8")
+
+    logo_img_tag = f'<img src="data:image/png;base64,{logo_base64}" alt="Logo" style="height:100px;"><br><br>'
 
     html_content = f"""
-    <img src="data:image/png;base64,{logo_base64}" alt="Logo" style="height:100px;"><br><br>
-
+    {logo_img_tag}
     <h2>🐴 Session Summary for {horse_name}</h2>
     <p><strong>Date:</strong> {session_date}</p>
     <p><strong>Amount:</strong> ${amount:.2f} — {paid_status}</p>
     <p><strong>Notes:</strong></p>
     <p>{notes_html}</p>
     <h3>📎 Marked Areas of Concern</h3>
-    <p>The marked diagrams are attached as images of the left and right sides of the horse.</p>
+     <p>The marked diagrams are attached as images of the left and right sides of the horse.</p>
     """
+
 
     message = Mail(
         from_email=(from_email, from_name),

@@ -1,5 +1,5 @@
-streamlit
-streamlit-drawable-canvas
+streamlit==1.35.0
+streamlit-drawable-canvas==0.8.0
 pandas
 Pillow
 sendgrid

@@ -59,23 +59,11 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
     paid_status = "✅ Paid" if paid else "❌ Not Paid"
     notes_html = notes.replace('\n', '<br>')
 
-    # Embed logo using CID
-    logo_path = "images/logo.png"
-    logo_cid = "logo_cid"
-    logo_attachment = None
-    if os.path.exists(logo_path):
-        with open(logo_path, "rb") as f:
-            logo_data = base64.b64encode(f.read()).decode()
-            logo_attachment = Attachment(
-                FileContent(logo_data),
-                FileName("logo.png"),
-                FileType("image/png"),
-                Disposition("inline"),
-                content_id=logo_cid
-            )
+    # GitHub-hosted logo
+    logo_url = "https://raw.githubusercontent.com/heatherLS/equine-bodywork/main/images/logo.png"
 
     html_content = f"""
-    <img src="cid:{logo_cid}" alt="Logo" style="height:100px;"><br><br>
+    <img src="{logo_url}" alt="Logo" style="height:100px;"><br><br>
     <h2>🐴 Session Summary for {horse_name}</h2>
     <p><strong>Date:</strong> {session_date}</p>
     <p><strong>Amount:</strong> ${amount:.2f} — {paid_status}</p>
@@ -89,10 +77,13 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
         from_email=(from_email, from_name),
         to_emails=to_email,
         subject=f"Session Summary: {horse_name} ({session_date})",
-        html_content=html_content
+        html_content=html_content,
     )
 
-    # Attach both horse images as attachments
+    # Set reply-to manually
+    message.reply_to = "allisonk330@gmail.com"
+
+    # Attach both PNGs
     attachments = []
     for path, label in [(left_path, "left"), (right_path, "right")]:
         if os.path.exists(path):
@@ -105,10 +96,6 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
             )
             attachments.append(attachment)
 
-    # Add logo as inline image
-    if logo_attachment:
-        attachments.insert(0, logo_attachment)
-
     message.attachment = attachments
 
     try:
@@ -119,7 +106,6 @@ def send_session_email(to_email, horse_name, session_date, amount, paid, notes, 
         st.error("📋 SendGrid error:")
         st.exception(e)
         return False
-
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="🐴 Equine Bodywork Tracker", layout="wide")

@@ -16,13 +16,6 @@ def image_to_base64(path):
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
 
-def pil_to_base64(pil_img):
-    from io import BytesIO
-    buf = BytesIO()
-    pil_img.save(buf, format="PNG")
-    byte_data = buf.getvalue()
-    return f"data:image/png;base64,{base64.b64encode(byte_data).decode()}"
-
 def export_canvas_to_file(canvas_data, background_image, save_path):
     if not canvas_data.json_data or "objects" not in canvas_data.json_data:
         return
@@ -126,9 +119,6 @@ right_img_path = "images/horse_right.png"
 left_img = Image.open(left_img_path)
 right_img = Image.open(right_img_path)
 
-left_bg_url = pil_to_base64(left_img)
-right_bg_url = pil_to_base64(right_img)
-
 # Sidebar inputs
 st.sidebar.header("Session Info")
 horse_name = st.sidebar.text_input("Horse Name")
@@ -148,7 +138,7 @@ with col1:
         stroke_width=3,
         height=left_img.height,
         width=left_img.width,
-        background_image=left_img,  # ✅ Local file included in repo
+        background_image=left_img,
         drawing_mode="freedraw",
         key="canvas_left"
     )
@@ -159,11 +149,10 @@ with col2:
         stroke_width=3,
         height=right_img.height,
         width=right_img.width,
-        background_image=right_img,  # ✅ Local file included in repo
+        background_image=right_img,
         drawing_mode="freedraw",
         key="canvas_right"
     )
-
 
 # Save and Send
 if st.button("💾 Save Session"):
